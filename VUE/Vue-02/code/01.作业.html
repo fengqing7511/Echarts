@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="./vue-2.4.0.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <button @click="filterPass">所有科目都及格的学生</button>
+
+        <div>
+            姓名:<input type="text" placeholder="请输入姓名" v-model="name"> <br>
+            数学:<input type="text" placeholder="请输入数学" v-model="math"> <br>
+            语文:<input type="text" placeholder="请输入语文" v-model="chinese"> <br>
+            英语:<input type="text" placeholder="请输入英语" v-model="english"> <br>
+            <input type="button" value="新增" @click="add">
+        </div>
+        <table border="1" cellspacing="0" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>总分排序</th>
+                    <th>姓名</th>
+                    <th @click="paixu('math')">数学</th>
+                    <th @click="paixu('chinese')">语文</th>
+                    <th @click="paixu('english')">英语</th>
+                    <th>总分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in scores" :key="item.name">
+                    <td>{{item.totalnum}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.math}}</td>
+                    <td>{{item.chinese}}</td>
+                    <td>{{item.english}}</td>
+                    <td>{{item.total}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        //原始数组
+        let scores = [
+            { name: 'Bob', math: 97, chinese: 89, english: 67 },
+            { name: 'Tom', math: 67, chinese: 52, english: 98 },
+            { name: 'Jerry', math: 72, chinese: 87, english: 89 },
+            { name: 'Ben', math: 92, chinese: 87, english: 59 },
+            { name: 'Chan', math: 47, chinese: 85, english: 92 }
+        ];
+
+        //作用：给socres数组添加额外的信息
+        function dosomeThingWithScores() {
+            //给原始数组添加一个total 总分字段
+            scores.map((item) => {
+                item.total = item.math + item.chinese + item.english;
+                return item;
+            })
+
+            //给元素数组按照总分来排序
+            scores.sort((item1, item2) => {
+                return item2.total - item1.total
+            })
+
+            //给元素数组添加一个总分排名的字段
+            scores.map((item, idx) => {
+                item.totalnum = idx + 1;
+                return item;
+            })
+        }
+
+        dosomeThingWithScores();
+
+
+        //创建一个VM实例
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                scores,
+                name: "",
+                math: "",
+                chinese: "",
+                english: ""
+            },
+            methods: {
+                //所有科目都及格的学生
+                filterPass() {
+                    var filterScores = this.scores.filter((item) => {
+                        return item.math >= 60 && item.chinese >= 60 && item.english >= 60
+                    })
+                    this.scores = filterScores;
+                },
+                //点击语文、数学、英语来排序
+                paixu(subject) {
+                    //scores 原生数组
+                    //this.scores 当前vm实例中的数组
+                    this.scores = scores;
+                    this.scores.sort((item1, item2) => {
+                        return item1[subject] - item2[subject];
+                    })
+                },
+                add() {
+                    //判断用户是否完全输入了信息
+                    if (this.name && this.math && this.english && this.chinese) {
+                        //包装一个对象
+                        var obj = {
+                            name: this.name,
+                            math: parseInt(this.math),
+                            chinese: parseInt(this.chinese),
+                            english: parseInt(this.english)
+                        }
+                        //把对象添加到原始的scores数组
+                        scores.push(obj);
+                        //重新处理一些socres数组(目的是给新增的元素添加total和totalnum两个字段)
+                        dosomeThingWithScores()
+                        //把处理之后是scores数组重新赋值给this.scores
+                        this.scores = scores;
+                        //清空表单
+                        this.name = this.math = this.english = this.chinese = ""
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

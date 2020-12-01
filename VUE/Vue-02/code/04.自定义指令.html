@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue-2.4.0.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-focus v-show="flag">
+        <button @click="flag=!flag">点我切换</button>
+
+        <p v-color="'red'" v-fontsize='40'>测试p标签</p>
+    </div>
+
+    <script>
+        //1.自定义全局指令
+        Vue.directive("focus",{
+            //自定义指令的钩子函数的参数
+            //1.el 表示绑定指令的元素
+            //2.binding绑定指令的时候传入的一些信息
+            //当指令绑定到元素的时候执行，此时该元素在页面上还不存在
+            bind:function(el,binding){
+                console.log("bind",el,binding)
+            },
+            //当绑定指令的元素插入到dom的时候执行，此时该元素在页面上已经存在了
+            inserted:function(el,binding){
+                el.focus();
+                console.log("inserted",el,binding)
+            },
+            //当绑定指令的元素更新的时候执行
+            update:function(){
+                console.log("update")
+            }
+        })
+
+        Vue.directive("color",{
+            bind:function(el,binding){
+                el.style.color = binding.value;
+            }
+        })
+
+
+        //需求：让页面载入的时候文本框自动获取焦点
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                flag:true
+            },
+            //自定义局部指令的时候，如果直接跟一个函数，没有写(bind inserted update)的时候，就相当于把该函数写到了bind和update中
+            directives:{
+                fontsize:function(el,binding){
+                    el.style.fontSize = binding.value+'px'
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

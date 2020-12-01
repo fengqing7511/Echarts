@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./bootstrap-3.3.7.css">
+
+    <script src="./vue-2.4.0.js"></script>
+    <script src="./axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h1 class="text-center">添加品牌</h1>
+            </div>
+            <div class="panel-body">
+                <!--ref可以获取页面元素的引用-->
+                <label>
+                    Id:
+                    <input type="text" ref="idInput" v-focus class="form-control" v-model="id">
+                </label>
+
+                <label>
+                    Name:
+                    <input type="text" class="form-control" v-model="name" @keyup.enter="add">
+                </label>
+
+                <input type="button" value="添加" class="btn btn-primary" @click="add">
+
+                <label>
+                    搜索名称关键字：
+                    <input type="text" class="form-control" v-model="keywords">
+                </label>
+            </div>
+
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Ctime</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in filterlist" :key="item.id">
+                        <td>{{item.id}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.ctime|dateFormat()}}</td>
+                        <td><a href="http://www.baidu.com" @click.prevent="del(item.id)">删除</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        //自定义指令
+        Vue.directive("focus", {
+            inserted: function (el, binding) {
+                el.focus();
+            }
+        })
+
+
+        Vue.filter("dateFormat", function (dateStr, pattern = "YYYY-MM-dd HH:mm:ss") {
+            var dt = new Date(dateStr)
+            //获取时间对象的年月日
+            var y = dt.getFullYear()
+            var m = dt.getMonth() + 1
+            var d = dt.getDate()
+            //判断pattern是不是 YYYY-MM-dd
+            if (pattern.toLowerCase() === 'yyyy-mm-dd') {
+                return `${y}-${m}-${d}`
+            }
+            else {
+                var hh = dt.getHours()
+                var mm = dt.getMinutes()
+                var ss = dt.getSeconds()
+
+                return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+            }
+        })
+
+        //配置发送请求的baseURL
+        axios.defaults.baseURL = 'http://localhost:3000/';
+        //配置post请求的content-type （post提交表单的content-type就是application/x-www-form-urlencoded）
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        //配置发送请求的时候自动携带cookie
+        // axios.defaults.withCredentials = true; 
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                id: "",
+                name: "",
+                keywords: "",
+                list: []
+            },
+            //当vm实例创建完毕之后会执行created方法
+            //我们在该方法中向服务器发送请求来获取数据
+            created() {
+                this.getBrandList();
+            },
+            methods: {
+                //封装一个获取所有品牌的方法
+                getBrandList: function () {
+                    axios.get("/api/getnewslist")
+                        .then(({ data }) => {
+                            if (data.status == 0) {
+                                this.list = data.message;
+                            }
+                        })
+                },
+                add() {
+                    if (this.id && this.name) {
+                        var obj = {
+                            id: this.id,
+                            name: this.name
+                        }
+
+                        axios.post("/api/news/new", obj)
+                            .then(({ data }) => {
+                                //添加成功
+                                if (data.status == 0) {
+                                    this.getBrandList();
+                                }
+                            })
+
+                        this.id = this.name = ""
+                        //当品牌添加完毕之后，重新让id输入框获取焦点
+                        this.$refs.idInput.focus()
+                    }
+                },
+                del(id) {
+                    axios.get(`/api/news/del/${id}`)
+                    .then(({data})=>{
+                        if(data.status == 0){
+                            this.getBrandList();
+                        }
+                    })
+                },
+            },
+            computed: {
+                //计算属性：简单的认为当前的filterlist的内容是由其他属性值推导出来的 
+                filterlist: function () {
+                    return this.list.filter((item) => {
+                        if (item.name.includes(this.keywords)) {
+                            return true;
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+
+
+</body>
+
+</html>

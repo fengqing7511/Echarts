@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue-2.4.0.js"></script>
+
+    <style>
+        .red {
+            color: red;
+        }
+
+        .thin {
+            font-weight: 200;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .active {
+            letter-spacing: 1.5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!--之前写样式的方式-->
+        <p class="red thin italic active">测试</p>
+        <!--vue中写样式的时候可以通过v-bind的方式-->
+        <p :class="['thin','red','active']">测试2</p>
+        <p :class="['thin','red',flag?'active':'']">测试2</p>
+        <p :class="['thin','red',{'active':flag}]">测试3</p>
+        <p :class="cssobj">测试4</p>
+
+        <button @click="flag=!flag">点我切换</button>
+
+        <p style="color:red">测试</p>
+        <!--vue中行业样式的写法-->
+        <p :style="styleObj1">测试style</p>
+        <p :style="[styleObj1,styleObj2]">测试style2</p>
+    </div>
+
+    <script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                flag: true,
+                cssobj: {
+                    thin: true,
+                    red: true,
+                    active: false
+                },
+                styleObj1: { color: 'red', 'font-weight': 800 },
+                styleObj2: { 'font-style': 'italic' }
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue-2.4.0.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <span id="span" ref="spanRef">{{msg}}</span>
+        <button @click="dosomething">点我</button>
+        <button @click="msg='你好123'">点我修改数据</button>
+    </div>
+
+    <template id="temp">
+        <div>测试</div>
+    </template>
+
+    <script>
+        //生命周期 研究是Vue实例从创建到销毁的整个过程，在这整个过程中会触发一系列函数，这些函数就叫生命周期的钩子函数
+        var vm = new Vue({
+            //如果同时存在el和template，会把template作为页面模板进行编译。如果只有el没有template，会把el作为页面模板进行编译
+            //如果在创建vm实例的时候，没有写el，那么我们可以通过vm.$mount("#app")来手动挂载el
+            // el: "#app",
+            // template:"#temp",
+            data: {
+                msg:"hello world"
+            },
+            // 生命周期的钩子函数是在vue运行过程中自动调用的，我们不要手动去调用任何的生命周期钩子函数
+
+            // beforeCeate() 是生命周期的第一个函数，该函数执行的时候，vue实例还没有彻底创建好
+            // 此时data中的数据以及method中的方法不可以使用
+            beforeCreate(){
+                console.log("beforeCreate",this.msg,this.dosomething)
+            },
+            // created() 是生命周期的第二个函数，该函数执行的时候，vue实例已经创建好了
+            // 如果我们要访问data中的数据以及method中的方法，最早在created里面可以用
+            // 但是该方法执行的时候，虚拟dom还没有被创建
+            created(){
+                console.log("created",this.msg,this.$refs.spanRef)
+            },
+            //beforeMount() 是生命周期的第三个函数，该函数执行的时候，虚拟dom已经创建好了，但是虚拟dom还没有渲染到页面
+            //beforeMount不能保证页面是最新的
+            beforeMount(){
+                console.log("beforeMount",this.$refs.spanRef)
+                console.log(document.getElementById("span").innerHTML)  //{{msg}}
+            },
+            //mounted() 是生命周期的第四个函数，该函数执行的时候，虚拟dom已经替换掉真是dom了
+            //所以mounted()函数中可以保证页面是最新的
+            mounted(){
+                console.log("mounted",this.$refs.spanRef)
+            },
+            //beforeUpdate()是数据源发生改变之后，页面更新之前执行的
+            //该函数执行的时候，页面还是旧的
+            beforeUpdate(){
+                console.log("beforeUpdate",this.$refs.spanRef.innerHTML)
+            },
+            //update() 是数据源发生改变之后，页面更新之后执行的
+            //该函数执行的时候，页面是最新的了
+            updated(){
+                console.log("updated",this.$refs.spanRef.innerHTML)
+            },
+            //vue实例销毁的时候执行的钩子函数
+            beforeDestroy(){
+                console.log("beforeDestroy")
+            },
+            detroyed(){
+                console.log("detroyed")  
+            },
+            methods:{
+                dosomething(){
+                    console.log("sdsssssssssssssss")
+                }
+            }
+        })
+
+        //手动挂载el
+        vm.$mount("#app")
+
+        /*
+        生命周期的函数有三个阶段：
+        1.组件的创建阶段   beforeCreate   created   beforeMount   mounted   只会执行一次
+        2.组件的运行阶段   beforeUpdate   updated    执行多次
+        3.组件的销毁阶段   beforeDestroy  detroyed   执行一次
+        
+        */
+    </script>
+</body>
+
+</html>

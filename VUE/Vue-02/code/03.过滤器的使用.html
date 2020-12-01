@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue-2.4.0.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!--使用过滤器 
+            过滤器可以使用在插值表达式和v-bind中
+        -->
+        {{ msg | msgFormat('猥琐') }}
+
+        <div :title="msg|msgFormat('pp')">鼠标移动到我上面</div>
+    </div>
+
+
+    <script>
+        //声明一个全局过滤器 
+        //过滤器的第一个参数就是我们需要过滤的文本
+        //过滤器的第二个第三个参数是外部传递过来的
+        Vue.filter("msgFormat",function(msg,data){
+            return msg.replace(/单纯/g,data)
+        })
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                msg: "曾经，我也是一个单纯的少年，单纯的我，傻傻的问，谁是世界上最单纯的男人"
+            },
+            //声明私有过滤器
+            filters:{
+                msgFormat:function(msg){
+                    return  msg.replace(/单纯/g,"不单纯")
+                } 
+            }
+        })
+
+        
+
+        //当有同名的私有过滤器和全局过滤器的时候，优先使用私有过滤器
+    </script>
+</body>
+
+</html>
